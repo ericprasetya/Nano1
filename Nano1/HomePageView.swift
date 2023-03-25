@@ -8,55 +8,80 @@
 import SwiftUI
 
 struct HomePageView: View {
-    @State private var idx = 0
-    @State var categories = [
-        Category(name: "Electronic"),
-        Category(name: "Personal Stuff"),
-        Category(name: "Stationary"),
-    ]
+    let logoImage: Namespace.ID
+    let logo: Namespace.ID
     
-    @State var selectedCategoryID: String?
+    @State var search = ""
+    @EnvironmentObject var modelData: ModelData
     
+    @State var selectedCategoryID = ""
     var body: some View {
-        VStack{
-            HStack{
-                Text("Hello, how’s your day?")
-                    .font(.largeTitle)
-                    .bold()
-                    .padding()
-                Spacer()
-            }
-            
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack{
-                    ForEach(categories) { category in
-                        Button(action: {
-                            selectedCategoryID = category.id.uuidString
-                        }) {
-
-                        Text(category.name)
-                            .font(.system(size: 20))
-                            .bold()
+        NavigationView {
+            VStack {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack{
+                        ForEach(modelData.categories) { category in
+                            Button(action: {
+                                if selectedCategoryID != category.id.uuidString {
+                                    selectedCategoryID = category.id.uuidString
+                                } else {
+                                    selectedCategoryID = ""
+                                }
+                            }) {
+                                Text(category.name)
+                                    .font(.system(size: 18))
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(category.id.uuidString == selectedCategoryID  ? .gray : .blue)
+                            .cornerRadius(5)
                         }
-                        .buttonStyle(.borderedProminent)
-                        .tint(category.id.uuidString == selectedCategoryID  ? .gray : .blue)
-                        .cornerRadius(20)
                     }
                 }
+                .padding(.leading, 16)
+                
+                ItemListView(search: $search, selectedCategoryID: $selectedCategoryID)
+                .searchable(text: $search)
+                .pickerStyle(.segmented)
+                .padding(.top, -4)
+                
+                NavigationLink(destination: ReportFormView()) {
+                    Text("Submit a Report")
+                        .frame(width: 330, height: 10)
+                        .padding()
+                        .background(.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                }
             }
-            .pickerStyle(.segmented)
-            .padding(.top, -4)
-            .padding(.leading, 12)
-            
-            
-            Spacer()
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    HStack {
+                        Text("iFound")
+                            .fontWeight(.bold)
+                            .font(.title)
+                            .foregroundColor(.black)
+                        Image("logo")
+                            .resizable()
+                            .frame(width: 30, height: 45)
+                            .matchedGeometryEffect(id: logoImage, in: logo)
+                    }
+                    .frame(height: 200)
+                }
+                ToolbarItem(placement: .navigationBarLeading) {
+                    VStack {
+                        Text("Home").bold().font(.largeTitle)
+                    }
+                    .frame(height: 200)
+                }
+            }
         }
-        
+        .background(Color(.white))
     }
 }
 
 struct HomePageView_Previews: PreviewProvider {
     static var previews: some View {
-        HomePageView()
+        ContentView()
+            .environmentObject(ModelData())
     }
 }
