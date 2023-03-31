@@ -10,48 +10,6 @@ import PhotosUI
 
 import ImageIO
 
-struct ImagePicker: UIViewControllerRepresentable {
-    @Environment(\.presentationMode) var presentationMode
-    @Binding var image: UIImage?
-
-    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-        var parent: ImagePicker
-
-        init(_ parent: ImagePicker) {
-            self.parent = parent
-        }
-
-        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-            if let image = info[.originalImage] as? UIImage {
-                parent.image = image
-            }
-            parent.presentationMode.wrappedValue.dismiss()
-        }
-
-        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-            parent.presentationMode.wrappedValue.dismiss()
-        }
-    }
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-
-    func makeUIViewController(context: UIViewControllerRepresentableContext<ImagePicker>) -> UIImagePickerController {
-        let picker = UIImagePickerController()
-        picker.delegate = context.coordinator
-        picker.allowsEditing = false
-        picker.sourceType = .photoLibrary
-        picker.mediaTypes = ["public.image"]
-        picker.modalPresentationStyle = .fullScreen
-        return picker
-    }
-
-    func updateUIViewController(_ uiViewController: UIImagePickerController, context: UIViewControllerRepresentableContext<ImagePicker>) {
-
-    }
-}
-
 
 struct ReportFormView: View {
     @Environment(\.presentationMode) var presentation
@@ -64,7 +22,7 @@ struct ReportFormView: View {
     
     @State var selectedPhoto: [PhotosPickerItem] = []
     @State var data: Data?
-    
+    @Binding var loggedInUser: Owner?
     var body: some View {
         NavigationView {
             ScrollView (showsIndicators: false) {
@@ -196,9 +154,11 @@ struct ReportFormView: View {
                     Button {
                         let imageName = UUID().uuidString + ".png"
                         let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(imageName)
-                        if let data = data, let uiimage = UIImage(data: data){
+                        if let data = data, var uiimage = UIImage(data: data){
+                            uiimage = rotateImage(image: uiimage) ?? UIImage(data: data)!
                             do {
                                 try uiimage.pngData()?.write(to: path)
+                                
                                 print("Image saved")
                             }
                             catch {
@@ -206,7 +166,7 @@ struct ReportFormView: View {
                             }
 
                         }
-                        let item = LostItem(name: itemName, description: itemDesc, location: itemLocation, date: selectedDate, category: (selectedCategory ?? modelData.categories.first)!, imageName: path)
+                        let item = LostItem(name: itemName, description: itemDesc, location: itemLocation, date: selectedDate, category: (selectedCategory ?? modelData.categories.first)!, owner: loggedInUser, imageName: path)
 
                         modelData.lostItems.append(item)
                         LostItem.saveItems(modelData.lostItems)
@@ -220,14 +180,24 @@ struct ReportFormView: View {
                     .buttonBorderShape(.roundedRectangle)
                     .buttonStyle(.borderedProminent)
                     
-                    ForEach(modelData.lostItems) { item in
-                        Text(item.name)
-                    }
+//                    ForEach(modelData.lostItems) { item in
+//                        Text(item.name)
+//                    }
                 }
                 .navigationTitle("")
                 .navigationBarHidden(true)
             }
         }
+    }
+    func rotateImage(image: UIImage) -> UIImage? {
+        if image.imageOrientation == UIImage.Orientation.up {
+            return image /// already upright, no need for changes
+        }
+        UIGraphicsBeginImageContext(image.size)
+        image.draw(in: CGRect(origin: CGPoint.zero, size: image.size))
+        let copy = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return copy
     }
     
 

@@ -12,14 +12,42 @@ struct ItemListView: View {
     @EnvironmentObject var modelData: ModelData
     @Binding var search: String
     @Binding var selectedCategoryID: String
-    
+    @Binding var loggedInUser: Owner?
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            ForEach(filteredItems()) { product in
-                CardView(product: product)
-                    .padding(.top, -15)
+        VStack(spacing: 15) {
+            ForEach(filteredItems()) { item in
+                ZStack{
+                    CardView(product: item)
+//                    Text(loggedInUser?.phoneNumber ?? "test")
+                    if loggedInUser != nil {
+                        if item.owner?.phoneNumber == loggedInUser?.phoneNumber {
+                            HStack{
+                                Spacer()
+                                Button {
+                                    removeItem(rmItem: item)
+                                } label: {
+                                    Image(systemName: "x.circle.fill")
+                                        .resizable()
+                                        .foregroundColor(.red)
+                                        .scaledToFit()
+                                        .frame(width: 30)
+                                        .background {
+                                            Circle()
+                                                .foregroundColor(.white)
+                                        }
+                                }
+                            }
+                            .padding(.bottom, 140)
+                            .padding(.trailing, 10)
+                        }
+                    }
+                }
             }
-            .foregroundColor(.black)
+        }
+    }
+    func removeItem(rmItem: LostItem) {
+        if let index = modelData.lostItems.firstIndex(where: {$0.id.uuidString == rmItem.id.uuidString}){
+            modelData.lostItems.remove(at: index)
         }
     }
     

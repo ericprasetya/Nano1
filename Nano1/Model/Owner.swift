@@ -10,7 +10,7 @@ import Foundation
 struct Owner: Identifiable, Codable{
     var id = UUID()
     let phoneNumber: String
-    
+    let password: String?
     static let OwnerKeyForUserDefaults = "myOwner"
     
     static func saveOwners(_ Owners: [Owner]) {

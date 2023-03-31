@@ -2,90 +2,179 @@
 //  CardView.swift
 //  Nano1
 //
-//  Created by Eric Prasetya Sentosa on 22/03/23.
+//  Created by Randy Julian on 21/03/23.
 //
 
 import SwiftUI
 
+struct CardBack : View{
+    let width : CGFloat
+    let height : CGFloat
+    @Binding var degree : Double
+    @Binding var product: LostItem
+    
+    var body: some View{
+        ZStack{
+            Image("cardBg")
+                .cornerRadius(15)
+                .frame(width: width, height: height)
+                .shadow(radius: 10)
+
+            VStack {
+                HStack {
+                    if product.imageName != nil {
+                        Image(uiImage: UIImage(contentsOfFile: product.imageName!.path) ?? UIImage())
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 140, height: 140)
+                            .clipped()
+                            .cornerRadius(10)
+                            .foregroundColor(.blue.opacity(0.7))
+                            .offset(x:31.5)
+                        
+                    } else if product.localImage != nil {
+                        Image(product.localImage!)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 140, height: 140)
+                            .clipped()
+                            .cornerRadius(10)
+                            .foregroundColor(.white)
+                            .offset(x:31.5)
+                    } else {
+                        Image(systemName: "nosign.app.fill")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 140, height: 140)
+                            .clipped()
+                            .cornerRadius(10)
+                            .foregroundColor(.white)
+                            .offset(x:31.5)
+                    }
+                        
+
+                    VStack {
+                        
+                            
+                        HStack {
+                            Text(product.name)
+                                .bold()
+                                .foregroundColor(.white)
+                                .padding(.leading, 20)
+                                .padding(.bottom, 5)
+                                .font(.title3)
+                            Spacer()
+                        }
+                        
+                        HStack {
+                            Text(product.category.name)
+                                .foregroundColor(.white)
+                                .padding(.leading, 20)
+                                .padding(.bottom, 5)
+                            Spacer()
+                        }
+                        
+                        HStack {
+                            Text(product.date.formatted(date: .numeric, time: .omitted))
+                                .foregroundColor(.white)
+                                .padding(.leading, 20)
+                                .padding(.bottom, 5)
+                                .padding(.trailing, 2)
+                            
+                            Text("|")
+                                .padding(.bottom, 7)
+                                .font(.title2)
+                                .foregroundColor(.white)
+
+                            
+                            Text(product.date.formatted(date: .omitted, time: .shortened))
+                                .foregroundColor(.white)
+                                .padding(.leading, 2)
+                                .padding(.bottom, 5)
+                            
+                            Spacer()
+                        }
+                    }
+                    .padding()
+                }
+            }
+        }.rotation3DEffect(Angle(degrees: degree), axis: (x: 0, y: 1, z: 0))
+    }
+}
+
+struct CardFront : View{
+    let width : CGFloat
+    let height : CGFloat
+    @Binding var degree : Double
+    @Binding var product: LostItem
+    
+    var body: some View{
+        ZStack{
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color(hex: "2886D8"))
+                .frame(width: width, height: height)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(Color(hex: "2FA3EB"))
+                        .frame(width: width, height: 120
+                        )
+                        .offset(y:-20))
+                
+            
+            VStack{
+                
+                HStack {
+                    Text("Description:")
+                        .padding(.top, 10)
+                        .padding(.bottom, 1)
+                        .padding(.leading, 22)
+                        .bold()
+                        .foregroundColor(.white)
+                    Spacer()
+                }
+                .frame(width: width)
+                
+                Text(product.description)
+                    .lineLimit(3)
+                    .frame(width: 300, height: 70)
+                    .foregroundColor(.white)
+                
+                HStack {
+//                    Spacer()
+                    Image(systemName: "phone")
+                        .foregroundColor(.white)
+                    Text(product.owner?.phoneNumber ?? "phone")
+                        .fontWeight(.bold)
+                        .font(.caption)
+                        .foregroundColor(.white)
+//                        .padding(.trailing, 22)
+                    Spacer()
+                    Image(systemName: "location")
+                        .foregroundColor(.white)
+                    Text(product.location)
+                        .fontWeight(.bold)
+                        .font(.caption)
+                        .lineLimit(2)
+                        .foregroundColor(.white)
+//                    Spacer()
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 5)
+                .frame(width: width)
+            }
+        }.rotation3DEffect(Angle(degrees: degree), axis: (x: 0, y: 1, z: 0))
+    }
+}
+
 struct CardView: View {
-    @State var product: LostItem
-    //    var body: some View {
-    //        ZStack {
-    //
-    //            Rectangle()
-    //                .cornerRadius(10)
-    //                .frame(width: 361, height: 200)
-    //                .clipped()
-    //                .foregroundColor(Color(hex: "359BA9"))
-    //
-    //            VStack(alignment: .leading){
-    //                Text("Product")
-    //                    .padding(.top, 40)
-    //                    .padding(.leading, 10)
-    //                    .font(.headline)
-    //                    .offset(y:10)
-    //                Rectangle()
-    //                    .cornerRadius(10)
-    //                    .frame(width: 361, height: 220)
-    //                    .foregroundColor(Color(hex: "B8D3E3"))
-    //
-    //            }
-    //
-    //            HStack{
-    //                VStack{
-    //                    if product.imageName != nil {
-    //                        Image(uiImage: UIImage(contentsOfFile: product.imageName!.path) ?? UIImage())
-    //                            .resizable()
-    //                            .frame(width: 100.0, height: 100.0)
-    //                            .cornerRadius(10)
-    //                            .padding(10)
-    //                    } else {
-    //                        Image("1")
-    //                            .resizable()
-    //                            .frame(width: 100.0, height: 100.0)
-    //                            .cornerRadius(10)
-    //                            .padding(10)
-    //                    }
-    //
-    //
-    //
-    //                    Text(product.date.formatted(date: .numeric, time: .shortened))
-    //                        .fixedSize(horizontal: false, vertical: true)
-    //                        .frame(width: 100)
-    //                }
-    //
-    //                VStack(alignment: .leading){
-    //                    Text(product.name)
-    //                        .bold()
-    //                    Spacer()
-    //                    Text("Description: ")
-    //                    Text(product.description)
-    //                    Spacer()
-    //                    Text("Location: ")
-    //                    Text(product.location)
-    //                    Spacer()
-    //            }
-    //
-    //                Spacer()
-    //            }
-    //
-    //            .frame(width: 361, height: 150)
-    //            .padding(.top, 25)
-    //            .offset(y:10)
-    //            Spacer()
-    //
-    //        }
-    //        .padding(0)
-    //
-    //    }
-        
     @State var backDegree = 0.0
     @State var frontDegree = -90.0
     @State var isFlipped = false
+    @State var product: LostItem
     
     let width : CGFloat = 340
-    let height : CGFloat = 220
-    let durationAndDelay : CGFloat = 0.3
+    let height : CGFloat = 160
+    let durationAndDelay : CGFloat = 0.35
     
     func flipCard(){
         isFlipped = !isFlipped
@@ -108,109 +197,16 @@ struct CardView: View {
     
     var body: some View {
         ZStack{
-            CardFront(width: width, height: height, degree: $frontDegree)
-            CardBack(width: width, height: height, degree: $backDegree)
+            CardFront(width: width, height: height, degree: $frontDegree, product: $product)
+            CardBack(width: width, height: height, degree: $backDegree, product: $product)
         }.onTapGesture {
             flipCard()
         }
-    }
-    
-}
-struct CardBack : View{
-    let width : CGFloat
-    let height : CGFloat
-    @Binding var degree : Double
-    
-    var body: some View{
-        ZStack{
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(.blue.opacity(0.7), lineWidth: 3)
-                .frame(width: width, height: height)
-            
-            VStack {
-                Image("logo")
-                    .resizable()
-                    .frame(width: 100, height: 100)
-                .foregroundColor(.blue.opacity(0.7))
-                
-                Text("Nama Item")
-                
-                Text("Date & Time")
-                    .fontWeight(.bold)
-                    .foregroundColor(.blue)
-                    .padding(7)
-                    .overlay(
-                    RoundedRectangle(cornerRadius: 50)
-                        .stroke(Color(.black), lineWidth: 2))
-            }
-        }.rotation3DEffect(Angle(degrees: degree), axis: (x: 0, y: 1, z: 0))
-    }
-}
-
-struct CardFront : View{
-    let width : CGFloat
-    let height : CGFloat
-    @Binding var degree : Double
-    
-    var body: some View{
-        ZStack{
-            RoundedRectangle(cornerRadius: 20)
-                .fill(.blue.opacity(0.3))
-                .frame(width: width, height: height)
-                .shadow(color: .gray, radius: 2, x: 0, y:0)
-
-            VStack{
-                Text("jdasfasfasklflaksjfklasjfkaskfjaskjflkasjfkjsaflasfjjdasfasfasklflaksjfklasjfkaskfjaskjflkasjfkjsaflasfjjdasfasfasklflaksjfklasjfkaskfjaskjflkasjfkjsaflasfj")
-                    .multilineTextAlignment(.center)
-                    .frame(width: 300)
-                
-                HStack {
-                    Text("Phone Number")
-                        .fontWeight(.bold)
-                        .foregroundColor(.blue)
-//                        .background(Color(hex: "123abc"))
-                        .padding(7)
-                        .overlay(
-                        RoundedRectangle(cornerRadius: 50)
-                            .stroke(Color(.black), lineWidth: 2))
-                }
-                
-            }
-        }.rotation3DEffect(Angle(degrees: degree), axis: (x: 0, y: 1, z: 0))
     }
 }
 
 struct CardView_Previews: PreviewProvider {
     static var previews: some View {
-        CardView(product:
-                    LostItem(name: "test", description: "dafsafdsa as f asfdas f", location: "Outdoor area", date: Date(), category: Category(name: "test1"))
-        )
-    }
-}
-
-extension Color {
-    init(hex: String) {
-        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-        var int: UInt64 = 0
-        Scanner(string: hex).scanHexInt64(&int)
-        let a, r, g, b: UInt64
-        switch hex.count {
-        case 3: // RGB (12-bit)
-            (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
-        case 6: // RGB (24-bit)
-            (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
-        case 8: // ARGB (32-bit)
-            (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
-        default:
-            (a, r, g, b) = (1, 1, 1, 0)
-        }
-
-        self.init(
-            .sRGB,
-            red: Double(r) / 255,
-            green: Double(g) / 255,
-            blue:  Double(b) / 255,
-            opacity: Double(a) / 255
-        )
+        CardView(product: LostItem(name: "test", description: "test", location: "test", date: .now, category: Category(name: "test"), owner: Owner(phoneNumber: "081222222222",    password: "000")))
     }
 }

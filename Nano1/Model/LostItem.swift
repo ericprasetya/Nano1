@@ -15,8 +15,9 @@ struct LostItem: Codable, Identifiable {
     var location: String
     var date: Date
     var category: Category
-    
+    var owner: Owner?
     var imageName: URL?
+    var localImage: String?
 //    var image: Image? {
 //        Image(uiImage: UIImage(contentsOfFile: imageName!.path) ?? UIImage())
 //    }
